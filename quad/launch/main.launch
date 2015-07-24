@@ -1,0 +1,17 @@
+<launch>
+	<node pkg="hokuyo_node" type="hokuyo_node" name="hokuyo_node"/>
+	<include file="$(find mavros)/launch/px4.launch"/>
+	<include file="$(find quad)/launch/gmapping.launch"/>
+	<include file="$(find quad)/launch/tf.launch"/>
+
+	<node pkg="quad" type="tfs" name="tfs" output="screen" />
+	<node pkg="quad" type="bash" name="bash" output="screen" />
+	<node pkg="quad" type="angles" name="angles" output="screen"/>
+
+	<arg name="bag" default="true"/>
+	<node pkg="rosbag" type="record" name="record" args="record -o flight /tf /mavros/battery /mavros/gps/fix /mavros/imu/data_raw /mavros/imu/mag /mavros/local_position/local /mavros/px4flow/ground_distance /mavros/px4flow/raw/optical_flow_rad /mavros/px4flow/temperature /mavros/setpoint_accel/accel /mavros/setpoint_attitude/att_throttle /mavros/setpoint_attitude/attitude /mavros/setpoint_position/local /mavros/setpoint_velocity/cmd_vel /mavros/state /mavros/vision_pose/pose /fixScan /map /map_metadata" if="$(arg bag)" />
+    <arg name="rgbd" default="false"/> 
+    <include file="$(find openni2_launch)/launch/openni2.launch" if="$(arg rgbd)">
+		<arg name="depth_registration" value="true"/>
+	</include>
+</launch>
