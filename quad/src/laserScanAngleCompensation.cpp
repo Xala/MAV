@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <math.h>
 
 
 class laserScanAngleCompensation
@@ -54,13 +55,19 @@ public:
         std::cout << yaw*180/3.1415 << std::endl;
         //std::cout << scan.angle_increment << std::endl;
         double n = scan.angle_max*2/scan.angle_increment;
-        std::cout << n << std::endl;
+        sensor_msgs::LaserScan compensatedScan = scan;
         for (int i = 0; i <= n; i++)
         {
-            double curr_angle = scan.angle_min + n*scan.angle_increment;
-            double curr_range = scan.ranges[i];
-            //std::cout << scan.ranges[i] << std::endl;
+            double currLaserYawAngle = scan.angle_min + n*scan.angle_increment;
+            double currRange = scan.ranges[i];
+            //Compensates laser range based on IMU angles.
+            double rollCompensation = sin(currLaserYawAngle)*(currRange - currRange*cos(roll));
+            double pitchCompensation = cos(currLaserYawAngle)*(currRange - currRange*cos(pitch));
+            double newRange = currRange + abs(rollCompensation) + abs(pitchCompensation);
+            compensatedScan.ranges[i] = newRange;
+            std::cout << "old: " << scan.ranges[i] << " new: " << newRange << std::endl;
         }
+        pubLaser.publish(compensatedScan);
     }
 
     void run()

@@ -10,9 +10,9 @@ slam_gmapping
   <param name="/use_sim_time" value="true"/>
 
   <node pkg="rosbag" type="play" name="play" 
-    args="$(find laser_scan_matcher)/demo/2015-07-23-17-21-36.bag --delay=5 --clock"/>
+    args="$(find laser_scan_matcher)/demo/demo_gmapping.bag --delay=5 --clock"/>
 
-  <remap from="scan" to="fixScan"/>
+  <remap from="scan" to="scan"/>
 
   #### publish an example base_link -> laser transform ###########
 

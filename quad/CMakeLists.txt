@@ -112,12 +112,15 @@ add_executable(tfs src/tf_node.cpp)
 add_executable(angles src/angles.cpp)
 add_executable(bash src/bash_node.cpp)
 add_executable(laserScanAngleCompensation src/laserScanAngleCompensation.cpp)
+add_executable(laserPose src/laserPose.cpp)
+
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(tfs quad_generate_messages_cpp)
 add_dependencies(angles quad_generate_messages_cpp)
 add_dependencies(bash quad_generate_messages_cpp)
 add_dependencies(laserScanAngleCompensation quad_generate_messages_cpp)
+add_dependencies(laserPose quad_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(tfs
@@ -132,6 +135,10 @@ target_link_libraries(bash
 )
 
 target_link_libraries(laserScanAngleCompensation
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(laserPose
   ${catkin_LIBRARIES}
 )
 
