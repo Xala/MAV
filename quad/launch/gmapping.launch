@@ -29,6 +29,6 @@
       lasamplestep: 0.005
       base_frame: MAV
     </rosparam>
-    <remap from="/scan" to="/fixScan" />
+    <remap from="/scan" to="/scanAngleCompensated" />
   </node>
 </launch>

@@ -32,12 +32,15 @@ public:
         pubLaser = nh.advertise<sensor_msgs::LaserScan>("/scanAngleCompensated",1);
     }
 
+    ~laserScanAngleCompensation()
+    {
+    }
+
     void imuCallback(const sensor_msgs::Imu &msg)
     {
         geometry_msgs::Quaternion quat= msg.orientation;
 
         tf::quaternionMsgToTF(quat,tfQuat);
-
     }
 
     void laserCallback(const sensor_msgs::LaserScan &msg)
@@ -50,9 +53,11 @@ public:
         tf::Matrix3x3 m(tfQuat);
         double roll, pitch, yaw;
         m.getRPY(roll, pitch, yaw);
-        std::cout << roll*180/3.1415 << std::endl;
-        std::cout << pitch*180/3.1415 << std::endl;
-        std::cout << yaw*180/3.1415 << std::endl;
+        pitch = -pitch;
+        //std::cout << roll*180/3.1415 << std::endl;
+        //std::cout << pitch*180/3.1415 << std::endl;
+        //std::cout << yaw*180/3.1415 << std::endl;
+
         //std::cout << scan.angle_increment << std::endl;
         double n = scan.angle_max*2/scan.angle_increment;
         sensor_msgs::LaserScan compensatedScan = scan;
@@ -63,9 +68,9 @@ public:
             //Compensates laser range based on IMU angles.
             double rollCompensation = sin(currLaserYawAngle)*(currRange - currRange*cos(roll));
             double pitchCompensation = cos(currLaserYawAngle)*(currRange - currRange*cos(pitch));
+            //std::cout << "roll: " << roll << " pitch: " << pitchCompensation << std::endl;
             double newRange = currRange + abs(rollCompensation) + abs(pitchCompensation);
             compensatedScan.ranges[i] = newRange;
-            std::cout << "old: " << scan.ranges[i] << " new: " << newRange << std::endl;
         }
         pubLaser.publish(compensatedScan);
     }

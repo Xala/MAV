@@ -60,6 +60,27 @@ public:
     void poseConstruction(geometry_msgs::Pose2D pose2D)
     {
         geometry_msgs::PoseStamped fusedPose;
+        ros::Time now(0);
+        fusedPose.header.stamp = now;
+        fusedPose.pose.position.x = -pose2D.y;
+        fusedPose.pose.position.y = pose2D.x;
+        fusedPose.pose.position.z = sonarRange.range; //this approach disables multilevel mapping
+        tf::Quaternion q;
+        tf::Matrix3x3 m(tfQuat);
+        double roll, pitch, yaw;
+        m.getRPY(roll, pitch, yaw);
+        pitch = -pitch;
+        q.setRPY(roll,pitch,pose2D.theta);
+
+        //std::cout << "roll: " << roll*180/3.1415 << std::endl;
+        //std::cout << "pitch: " << pitch*180/3.1415 << std::endl;
+        //std::cout << "yaw: " << yaw*180/3.1415 << std::endl;
+        //std::cout << "yawscan: " << pose2D.theta*180/3.1415 << std::endl;
+        fusedPose.pose.orientation.x = q.getX();
+        fusedPose.pose.orientation.y = q.getY();
+        fusedPose.pose.orientation.z = q.getZ();
+        fusedPose.pose.orientation.w = q.getW();
+        pubPose.publish(fusedPose);
     }
 
     void run()
