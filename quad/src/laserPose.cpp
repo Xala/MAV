@@ -27,6 +27,8 @@ private:
     tf::Quaternion tfQuat;
     sensor_msgs::Range sonarRange;
     geometry_msgs::Pose2D pose2D;
+    ros::Time imuTime;
+    
 
 public:
     laserPose()
@@ -36,13 +38,13 @@ public:
         subPose2D = nh.subscribe("/pose2D",1,  &laserPose::pose2DCallback, this);
         subSonarRange = nh.subscribe("/mavros/px4flow/ground_distance",1, &laserPose::sonarRangeCallback, this);
 
-        pubPose = nh.advertise<geometry_msgs::PoseStamped>("/pose",1);
+        pubPose = nh.advertise<geometry_msgs::PoseStamped>("/mavros/vision_pose/pose",1);
     }
 
     void imuCallback(const sensor_msgs::Imu &msg)
     {
         geometry_msgs::Quaternion quat= msg.orientation;
-
+        imuTime = msg.header.stamp;
         tf::quaternionMsgToTF(quat,tfQuat);
 
     }
@@ -60,11 +62,16 @@ public:
     void poseConstruction(geometry_msgs::Pose2D pose2D)
     {
         geometry_msgs::PoseStamped fusedPose;
-        ros::Time now(0);
-        fusedPose.header.stamp = now;
+        fusedPose.header.stamp = imuTime;
+        //std::cout << now << std::endl;
+        fusedPose.header.frame_id = "map";
         fusedPose.pose.position.x = -pose2D.y;
         fusedPose.pose.position.y = pose2D.x;
         fusedPose.pose.position.z = sonarRange.range; //this approach disables multilevel mapping
+        if (sonarRange.range < 0.31)
+        {
+            fusedPose.pose.position.z = 0;
+        }
         tf::Quaternion q;
         tf::Matrix3x3 m(tfQuat);
         double roll, pitch, yaw;

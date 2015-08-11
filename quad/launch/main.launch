@@ -2,8 +2,8 @@
 	<param name="/use_sim_time" value="false"/>
 	<node pkg="hokuyo_node" type="hokuyo_node" name="hokuyo_node"/>
 	<include file="$(find mavros)/launch/px4.launch"/>
-	<include file="$(find quad)/launch/gmapping.launch"/>
-	<include file="$(find quad)/launch/tf.launch"/>
+	<!--<include file="$(find quad)/launch/gmapping.launch"/>-->
+	<!--<include file="$(find quad)/launch/tf.launch"/>-->
 
 	
 
@@ -12,18 +12,26 @@
   <node pkg="laser_scan_matcher" type="laser_scan_matcher_node" 
     name="laser_scan_matcher_node" output="screen">
 
-    <param name="fixed_frame" value = "odom"/>
+    <param name="fixed_frame" value = "map"/>
+    <param name="base_frame" value="MAV"/>
     <param name="max_iterations" value="10"/>
     <remap from="scan" to="fixScan"/>
 
   </node>
-
+  <node pkg="tf" type="static_transform_publisher" name="MAV_to_laser"
+    args="0.0 0.0 0.0 0.0 0.0 0.0 /MAV /laser 500" />
+  <!--<node pkg="tf" type="static_transform_publisher" name="MAV_to_odom"
+    args="0.0 0.0 0.0 0.0 0.0 0.0 /MAV /odom 40" />-->
+    
+    <remap from="fcu" to="MAV"/>
+    <remap from="local_origin" to="map"/>
+	
 	<node pkg="quad" type="tfs" name="tfs" output="screen" />
-	<node pkg="quad" type="bash" name="bash" output="screen" />
+	<!--<node pkg="quad" type="bash" name="bash" output="screen" />-->
 	<node pkg="quad" type="angles" name="angles" output="screen"/>
 
 	<arg name="bag" default="true"/>
-	<node pkg="rosbag" type="record" name="record" args="record -o flight /tf /mavros/battery /mavros/gps/fix /mavros/imu/data /mavros/imu/mag /mavros/local_position/local /mavros/px4flow/ground_distance /mavros/px4flow/raw/optical_flow_rad /mavros/px4flow/temperature /mavros/setpoint_accel/accel /mavros/setpoint_attitude/att_throttle /mavros/setpoint_attitude/attitude /mavros/setpoint_position/local /mavros/setpoint_velocity/cmd_vel /mavros/state /mavros/vision_pose/pose /fixScan /map /scanAngleCompensated /map_metadata /pose2D /pose" if="$(arg bag)" />
+	<node pkg="rosbag" type="record" name="record" args="record -o flight /tf /mavros/battery /mavros/gps/fix /mavros/imu/data /mavros/imu/mag /mavros/local_position/local /mavros/vision_pose/pose /mavros/px4flow/ground_distance /mavros/px4flow/raw/optical_flow_rad /mavros/px4flow/temperature /mavros/setpoint_accel/accel /mavros/setpoint_attitude/att_throttle /mavros/setpoint_attitude/attitude /mavros/setpoint_position/local /mavros/setpoint_velocity/cmd_vel /mavros/state /mavros/vision_pose/pose /fixScan /map /scanAngleCompensated /map_metadata /pose2D /pose" if="$(arg bag)" />
     <arg name="rgbd" default="false"/> 
     <include file="$(find openni2_launch)/launch/openni2.launch" if="$(arg rgbd)">
 		<arg name="depth_registration" value="true"/>
@@ -32,4 +40,9 @@
 
 	<node pkg="quad" type="laserScanAngleCompensation" name="laserScanAngleCompensation" output="screen"/>
   	<node pkg="quad" type="laserPose" name="laserPose" output="screen"/>
+
+	<arg name="rviz" default="false"/>	
+	<node pkg="rviz" type="rviz" name="rviz"
+    args="-d $(find laser_scan_matcher)/demo/demo_gmapping.rviz" if="$(arg rviz)"/>
+
 </launch>

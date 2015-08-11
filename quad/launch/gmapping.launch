@@ -30,5 +30,6 @@
       base_frame: MAV
     </rosparam>
     <remap from="/scan" to="/scanAngleCompensated" />
+    <remap from="base_link" to="MAV"/>
   </node>
 </launch>

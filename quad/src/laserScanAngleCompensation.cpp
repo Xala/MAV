@@ -53,7 +53,7 @@ public:
         tf::Matrix3x3 m(tfQuat);
         double roll, pitch, yaw;
         m.getRPY(roll, pitch, yaw);
-        pitch = -pitch;
+        //pitch = -pitch;
         //std::cout << roll*180/3.1415 << std::endl;
         //std::cout << pitch*180/3.1415 << std::endl;
         //std::cout << yaw*180/3.1415 << std::endl;
