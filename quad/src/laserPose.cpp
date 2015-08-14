@@ -68,10 +68,10 @@ public:
         fusedPose.pose.position.x = -pose2D.y;
         fusedPose.pose.position.y = pose2D.x;
         fusedPose.pose.position.z = sonarRange.range; //this approach disables multilevel mapping
-        if (sonarRange.range < 0.31)
+        /*if (sonarRange.range < 0.31)
         {
             fusedPose.pose.position.z = 0;
-        }
+        }*/
         tf::Quaternion q;
         tf::Matrix3x3 m(tfQuat);
         double roll, pitch, yaw;
